@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Un présage avant les noces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#141d33;
+    --navy-deep:#0b1120;
+    --wine:#6f1d34;
+    --wine-light:#8f2c46;
+    --gold:#c8a24d;
+    --gold-bright:#e6c877;
+    --parchment:#f2e9d8;
+    --parchment-dim:#e6d9bd;
+    --ink:#2a2015;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(200,162,77,0.10), transparent 55%),
+      radial-gradient(ellipse at 85% 110%, rgba(111,29,52,0.25), transparent 60%),
+      linear-gradient(180deg, var(--navy-deep), var(--navy) 55%, var(--navy-deep));
+    font-family:'EB Garamond', serif;
+    color:var(--parchment);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 60px;
+  }
+  .stage{ width:100%; max-width:600px; }
+
+  .crest{ text-align:center; margin-bottom:6px; }
+  .crest .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:.25em; font-size:11px;
+    color:var(--gold); text-transform:uppercase;
+  }
+  h1{
+    font-family:'Playfair Display', serif;
+    font-weight:900; font-style:italic;
+    font-size:clamp(26px,6vw,38px);
+    text-align:center; margin:6px 0 2px;
+    color:var(--parchment);
+    text-shadow:0 2px 18px rgba(200,162,77,0.25);
+  }
+  .subtitle{
+    text-align:center; color:var(--parchment-dim);
+    font-size:16px; margin:0 0 22px; line-height:1.55;
+  }
+  .divider{
+    display:flex; align-items:center; gap:12px;
+    margin:18px auto 26px; max-width:300px;
+  }
+  .divider::before,.divider::after{
+    content:''; flex:1; height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+  .divider span{ color:var(--gold); font-size:14px; }
+
+  .card{
+    background:linear-gradient(180deg, var(--parchment), var(--parchment-dim));
+    color:var(--ink);
+    border-radius:6px;
+    padding:34px 30px 30px;
+    position:relative;
+    box-shadow:0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px rgba(200,162,77,0.5);
+  }
+  .card::before{
+    content:'';
+    position:absolute; inset:9px;
+    border:1px solid rgba(111,29,52,0.35);
+    pointer-events:none;
+  }
+  .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--wine); margin-bottom:10px;
+  }
+  .poem{
+    font-family:'Playfair Display', serif;
+    font-style:italic; font-weight:500;
+    font-size:18px; line-height:2;
+    margin:0 0 22px;
+    border-left:2px solid var(--gold);
+    padding-left:18px;
+  }
+  .poem .cap{
+    font-weight:900; color:var(--wine);
+    font-style:normal;
+  }
+  .instruction{
+    font-size:16px; line-height:1.6; margin:0 0 18px;
+  }
+  .cipher-strip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px; letter-spacing:.06em;
+    background:var(--navy-deep); color:var(--gold-bright);
+    padding:16px 18px; border-radius:4px;
+    text-align:center; word-spacing:6px;
+    margin:0 0 22px;
+    box-shadow:inset 0 0 0 1px rgba(200,162,77,0.3);
+  }
+
+  .hint-toggle{
+    background:none; border:none; color:var(--wine);
+    font-family:'EB Garamond',serif; font-style:italic; font-size:15px;
+    cursor:pointer; padding:0; margin:0 0 6px; text-decoration:underline;
+    text-underline-offset:3px; display:block;
+  }
+  .hint-box{
+    display:none; background:rgba(111,29,52,0.08);
+    border-left:3px solid var(--wine);
+    padding:10px 14px; font-size:15px; margin:6px 0 14px; border-radius:0 4px 4px 0;
+  }
+  .hint-box.show{ display:block; }
+
+  .answer-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+  input[type=text]{
+    flex:1; min-width:180px;
+    font-family:'EB Garamond',serif; font-size:17px;
+    padding:12px 14px;
+    border:1.5px solid rgba(42,32,21,0.3);
+    border-radius:4px; background:#fffdf8; color:var(--ink);
+  }
+  input[type=text]:focus{ outline:none; border-color:var(--wine); }
+
+  .verify-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+    padding:12px 22px; background:var(--wine); color:var(--parchment);
+    border:none; border-radius:4px; cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .verify-btn:hover{ background:var(--wine-light); }
+  .verify-btn:active{ transform:scale(0.97); }
+
+  .feedback{ margin-top:14px; font-size:15px; font-style:italic; min-height:20px; }
+  .feedback.err{ color:var(--wine); }
+  .feedback.ok{ color:#4f6b34; }
+
+  .indice-reveal{
+    margin-top:24px; padding-top:22px;
+    border-top:1px dashed rgba(111,29,52,0.35);
+    display:none;
+  }
+  .indice-reveal.show{ display:block; animation:unseal .7s ease; }
+  @keyframes unseal{
+    from{ opacity:0; transform:translateY(6px) scale(0.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .indice-reveal .label{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    letter-spacing:.2em; text-transform:uppercase;
+    color:var(--wine); margin-bottom:8px;
+  }
+  .indice-reveal .indice-text{
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:700;
+    font-size:22px; line-height:1.5; color:var(--ink);
+  }
+  .indice-reveal .postscript{
+    margin-top:14px; font-size:15px; color:#4a3c28;
+  }
+
+  .footnote{
+    text-align:center; margin-top:26px;
+    font-size:13px; color:rgba(242,233,216,0.4);
+    font-style:italic;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="crest">
+    <div class="eyebrow">Murder Party n°7 · Faire-part</div>
+  </div>
+  <h1>Un présage avant les noces</h1>
+  <p class="subtitle" id="introText"></p>
+  <div class="divider"><span>❧</span></div>
+
+  <div class="card" id="puzzleCard"></div>
+
+  <p class="footnote">Le reste vous parviendra en temps voulu.</p>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURATION — modifiable librement.
+   L'énigme se résout en deux temps :
+   1) un mot se cache dans les initiales du poème (acrostiche)
+   2) sa longueur donne le décalage pour déchiffrer le message
+      (chiffre de César) glissé sous le poème.
+   La phrase déchiffrée EST l'indice — volontairement énigmatique.
+   ============================================================ */
+
+const INTRO = "Un mot a été glissé dans ce faire-part — pour ceux qui sauront le lire entre les lignes. Peu y parviendront. Ce n'est pas un mot que vous devrez percer à jour, mais une phrase tout entière, tapie sous ces lignes. Ceux qui la découvriront détiendront, seuls, un indice que nul autre convive n'aura en main le soir de la murder party.";
+
+const POEM_LINES = [
+  "L'or scintille aux doigts des invités qui s'avancent vers le grand escalier de marbre,",
+  "Il resplendit surtout sur les alliances que l'on échangera devant l'autel,",
+  "Grande est la salle où l'on dressera bientôt les tables du festin nuptial,",
+  "Nul, parmi les cousins éloignés venus des quatre coins du royaume, ne se doute de rien,",
+  "Et sous les habits brodés d'or, les sourires se figent dès que le silence retombe,",
+  "Et pourtant un nom, murmuré une seule fois dans l'ombre du couloir, ne s'oublie plus."
+];
+
+const INSTRUCTION = "Un mot se cache dans ce texte — six lettres, pas une de plus. Servez-vous-en, dans l'ordre, pour ouvrir le message ci-dessous. Il ne suffira pas de le décaler une seule fois : la clé se répète, lettre après lettre, sur toute sa longueur.";
+
+const CIPHER_TEXT = "EWAG LICQZNKI NIIUI YY UKAWSYOK";
+
+// Réponse acceptée = message déchiffré (espaces/accents/casse ignorés)
+const ACCEPTED = ["tout heritage cache un mensonge", "toutheritagecacheunmensonge"];
+
+const HINT_1 = "Toutes les lettres du texte ne se valent pas. Certaines, à une place bien précise, comptent plus que les autres.";
+const HINT_2 = "Le mot cherché a autant de lettres que le texte a de phrases. Une fois trouvé, il se répète en boucle, lettre après lettre, pour ouvrir chaque lettre du message chiffré à sa manière.";
+
+const CLUE_LABEL = "Présage";
+const CLUE_TEXT = "Tout héritage cache un mensonge.";
+const CLUE_POSTSCRIPT = "Retenez cette phrase. Elle prendra tout son sens le soir venu — et vous seul(e) l'aurez lue avant les autres.";
+
+// Compteur discret : incrémenté une seule fois par appareil, uniquement
+// quand la PHRASE complète (pas le mot-clé intermédiaire) est validée.
+const COUNTER_NAMESPACE = "ibtissam-mariage-royal-2026";
+const COUNTER_KEY = "enigme-faire-part";
+const COUNTER_LOCK = "royalWeddingEnigmeSolved";
+
+/* ============================================================
+   MOTEUR
+   ============================================================ */
+
+function normalize(str){
+  return str.trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g," ");
+}
+function normalizeTight(str){
+  return normalize(str).replace(/\s+/g,"");
+}
+
+function renderIntro(){
+  document.getElementById('introText').textContent = INTRO;
+}
+
+function renderPuzzle(){
+  const card = document.getElementById('puzzleCard');
+  const poemHtml = POEM_LINES.map(line => `${line}<br>`).join('');
+
+  card.innerHTML = `
+    <div class="tag">Énigme du faire-part</div>
+    <div class="poem">${poemHtml}</div>
+    <p class="instruction">${INSTRUCTION}</p>
+    <div class="cipher-strip">${CIPHER_TEXT}</div>
+
+    <button class="hint-toggle" onclick="toggleHint(1)">Premier indice de jeu</button>
+    <div class="hint-box" id="hintBox1">${HINT_1}</div>
+    <button class="hint-toggle" onclick="toggleHint(2)">Second indice de jeu</button>
+    <div class="hint-box" id="hintBox2">${HINT_2}</div>
+
+    <div class="answer-row">
+      <input type="text" id="answerInput" placeholder="Message déchiffré..." autocomplete="off" onkeydown="if(event.key==='Enter')checkAnswer()">
+      <button class="verify-btn" onclick="checkAnswer()">Vérifier</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+
+    <div class="indice-reveal" id="indiceReveal">
+      <div class="label">${CLUE_LABEL} révélé</div>
+      <div class="indice-text">${CLUE_TEXT}</div>
+      <div class="postscript">${CLUE_POSTSCRIPT}</div>
+    </div>
+  `;
+}
+
+function toggleHint(n){
+  document.getElementById('hintBox' + n).classList.toggle('show');
+}
+
+function checkAnswer(){
+  const val = normalizeTight(document.getElementById('answerInput').value);
+  const ok = ACCEPTED.some(a => normalizeTight(a) === val);
+  const fb = document.getElementById('feedback');
+  if(ok){
+    fb.textContent = "Le message est déchiffré.";
+    fb.className = 'feedback ok';
+    document.getElementById('indiceReveal').classList.add('show');
+    document.getElementById('answerInput').disabled = true;
+    document.querySelector('.verify-btn').disabled = true;
+    registerSolve();
+  } else {
+    fb.textContent = "Ce n'est pas encore cela — réessayez.";
+    fb.className = 'feedback err';
+  }
+}
+
+function registerSolve(){
+  try{
+    if(localStorage.getItem(COUNTER_LOCK)) return; // déjà compté depuis cet appareil
+    localStorage.setItem(COUNTER_LOCK, '1');
+    fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`).catch(()=>{});
+  }catch(e){
+    // localStorage indisponible (navigation privée, etc.) : on tente quand même l'appel une fois
+    fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`).catch(()=>{});
+  }
+}
+
+renderIntro();
+renderPuzzle();
+</script>
+</body>
+</html>

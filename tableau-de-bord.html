@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Énigme du faire-part</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#141d33; --navy-deep:#0b1120;
+    --wine:#6f1d34; --wine-light:#8f2c46;
+    --gold:#c8a24d; --gold-bright:#e6c877;
+    --parchment:#f2e9d8; --parchment-dim:#e6d9bd; --ink:#2a2015;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(200,162,77,0.10), transparent 55%),
+      radial-gradient(ellipse at 85% 110%, rgba(111,29,52,0.25), transparent 60%),
+      linear-gradient(180deg, var(--navy-deep), var(--navy) 55%, var(--navy-deep));
+    font-family:'EB Garamond', serif; color:var(--parchment);
+    display:flex; justify-content:center; align-items:center;
+    padding:32px 16px;
+  }
+  .stage{ width:100%; max-width:440px; text-align:center; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; letter-spacing:.25em; font-size:11px;
+    color:var(--gold); text-transform:uppercase; margin-bottom:10px;
+  }
+  h1{
+    font-family:'Playfair Display', serif; font-weight:900; font-style:italic;
+    font-size:clamp(22px,5.5vw,30px); margin:0 0 30px; line-height:1.3;
+  }
+  .card{
+    background:linear-gradient(180deg, var(--parchment), var(--parchment-dim));
+    color:var(--ink); border-radius:6px; padding:38px 26px;
+    position:relative;
+    box-shadow:0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px rgba(200,162,77,0.5);
+  }
+  .card::before{
+    content:''; position:absolute; inset:9px;
+    border:1px solid rgba(111,29,52,0.35); pointer-events:none;
+  }
+  .count{
+    font-family:'Playfair Display', serif; font-weight:900;
+    font-size:clamp(56px,16vw,84px); line-height:1;
+    color:var(--wine); margin-bottom:10px;
+  }
+  .count.loading{ color:rgba(111,29,52,0.35); }
+  .label{
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    letter-spacing:.15em; text-transform:uppercase; color:var(--ink);
+    opacity:0.65; margin-bottom:4px;
+  }
+  .of-total{
+    font-size:16px; color:var(--ink); opacity:0.7; margin-top:8px;
+  }
+  .status{
+    margin-top:18px; font-size:13px; font-style:italic; color:var(--ink); opacity:0.55;
+    min-height:18px;
+  }
+  .refresh-btn{
+    margin-top:22px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.08em;
+    text-transform:uppercase; padding:11px 20px;
+    background:var(--wine); color:var(--parchment);
+    border:none; border-radius:4px; cursor:pointer;
+  }
+  .refresh-btn:hover{ background:var(--wine-light); }
+  .refresh-btn:disabled{ opacity:0.5; cursor:default; }
+  .footnote{
+    text-align:center; margin-top:22px; font-size:13px;
+    color:rgba(242,233,216,0.4); font-style:italic;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow">Suivi privé</div>
+  <h1>Qui a percé l'énigme du faire-part ?</h1>
+
+  <div class="card">
+    <div class="label">Résolutions enregistrées</div>
+    <div class="count loading" id="countDisplay">—</div>
+    <div class="of-total" id="totalDisplay"></div>
+    <div class="status" id="statusText">Chargement...</div>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadCount()">Actualiser</button>
+  </div>
+
+  <p class="footnote">Se met à jour manuellement — actualisez la page pour un chiffre à jour.</p>
+</div>
+
+<script>
+/* Doit correspondre exactement aux valeurs utilisées dans faire-part-enigme.html */
+const COUNTER_NAMESPACE = "ibtissam-mariage-royal-2026";
+const COUNTER_KEY = "enigme-faire-part";
+const TOTAL_GUESTS = 50; // nombre total de participants attendus — modifiable
+
+async function loadCount(){
+  const countEl = document.getElementById('countDisplay');
+  const totalEl = document.getElementById('totalDisplay');
+  const statusEl = document.getElementById('statusText');
+  const btn = document.getElementById('refreshBtn');
+
+  countEl.classList.add('loading');
+  statusEl.textContent = "Chargement...";
+  btn.disabled = true;
+
+  try{
+    const res = await fetch(`https://api.countapi.xyz/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+    if(!res.ok) throw new Error("réponse invalide");
+    const data = await res.json();
+    const value = (data && typeof data.value === 'number') ? data.value : 0;
+    countEl.textContent = value;
+    countEl.classList.remove('loading');
+    totalEl.textContent = `sur ${TOTAL_GUESTS} invité(e)s`;
+    const now = new Date();
+    statusEl.textContent = `Mis à jour à ${now.toLocaleTimeString('fr-FR')}`;
+  }catch(e){
+    countEl.textContent = "?";
+    countEl.classList.remove('loading');
+    statusEl.textContent = "Impossible de récupérer le chiffre pour le moment.";
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+loadCount();
+</script>
+</body>
+</html>
