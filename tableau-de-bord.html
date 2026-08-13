@@ -93,9 +93,8 @@
 </div>
 
 <script>
-/* Doit correspondre exactement aux valeurs utilisées dans faire-part-enigme.html */
-const COUNTER_NAMESPACE = "ibtissam-mariage-royal-2026";
-const COUNTER_KEY = "enigme-faire-part";
+/* Doit correspondre exactement à la valeur utilisée dans faire-part-enigme.html */
+const COUNTER_KEY = "ibtissam-murder-party-7-enigme-faire-part-2026";
 const TOTAL_GUESTS = 50; // nombre total de participants attendus — modifiable
 
 async function loadCount(){
@@ -109,10 +108,18 @@ async function loadCount(){
   btn.disabled = true;
 
   try{
-    const res = await fetch(`https://api.countapi.xyz/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+    const res = await fetch(`https://countapi.mileshilliard.com/api/v1/get/${COUNTER_KEY}`);
+    if(res.status === 404){
+      // Aucune résolution enregistrée pour l'instant
+      countEl.textContent = "0";
+      countEl.classList.remove('loading');
+      totalEl.textContent = `sur ${TOTAL_GUESTS} invité(e)s`;
+      statusEl.textContent = "Aucune résolution enregistrée pour l'instant.";
+      return;
+    }
     if(!res.ok) throw new Error("réponse invalide");
     const data = await res.json();
-    const value = (data && typeof data.value === 'number') ? data.value : 0;
+    const value = data && data.value !== undefined ? parseInt(data.value, 10) : 0;
     countEl.textContent = value;
     countEl.classList.remove('loading');
     totalEl.textContent = `sur ${TOTAL_GUESTS} invité(e)s`;
