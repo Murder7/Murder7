@@ -96,15 +96,6 @@
   .instruction{
     font-size:16px; line-height:1.6; margin:0 0 18px;
   }
-  .cipher-strip{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:15px; letter-spacing:.06em;
-    background:var(--navy-deep); color:var(--gold-bright);
-    padding:16px 18px; border-radius:4px;
-    text-align:center; word-spacing:6px;
-    margin:0 0 22px;
-    box-shadow:inset 0 0 0 1px rgba(200,162,77,0.3);
-  }
 
   .hint-toggle{
     background:none; border:none; color:var(--wine);
@@ -123,11 +114,12 @@
   input[type=text]{
     flex:1; min-width:180px;
     font-family:'EB Garamond',serif; font-size:17px;
-    padding:12px 14px;
+    padding:14px 14px;
     border:1.5px solid rgba(42,32,21,0.3);
     border-radius:4px; background:#fffdf8; color:var(--ink);
+    min-height:48px;
   }
-  input[type=text]:focus{ outline:none; border-color:var(--wine); }
+  input[type=text]:focus{ outline:none; border-color:var(--wine); box-shadow:0 0 0 3px rgba(111,29,52,0.12); }
 
   .verify-btn{
     font-family:'IBM Plex Mono', monospace;
@@ -135,13 +127,46 @@
     padding:12px 22px; background:var(--wine); color:var(--parchment);
     border:none; border-radius:4px; cursor:pointer;
     transition:background .15s ease, transform .1s ease;
+    min-height:48px;
   }
   .verify-btn:hover{ background:var(--wine-light); }
   .verify-btn:active{ transform:scale(0.97); }
+  .verify-btn:disabled{ opacity:0.55; cursor:default; }
 
   .feedback{ margin-top:14px; font-size:15px; font-style:italic; min-height:20px; }
-  .feedback.err{ color:var(--wine); }
+  .feedback.err{ color:var(--wine); animation:shake .35s ease; }
   .feedback.ok{ color:#4f6b34; }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-4px); }
+    75%{ transform:translateX(4px); }
+  }
+
+  .cipher-strip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px; letter-spacing:.06em;
+    background:var(--navy-deep); color:var(--gold-bright);
+    padding:16px 18px; border-radius:4px;
+    text-align:center; word-spacing:6px;
+    margin:0 0 8px;
+    box-shadow:inset 0 0 0 1px rgba(200,162,77,0.3);
+    cursor:pointer; user-select:all;
+    position:relative;
+  }
+  .cipher-strip:active{ box-shadow:inset 0 0 0 1px rgba(200,162,77,0.6); }
+  .copy-hint{
+    text-align:center; font-size:12px; color:rgba(242,233,216,0.45);
+    font-family:'IBM Plex Mono', monospace; letter-spacing:.05em;
+    margin:0 0 22px;
+  }
+
+  .copy-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; background:none; border:1px solid rgba(111,29,52,0.4);
+    color:var(--wine); padding:8px 14px; border-radius:4px; cursor:pointer;
+    margin-top:16px; min-height:40px;
+  }
+  .copy-btn:hover{ background:rgba(111,29,52,0.08); }
 
   .indice-reveal{
     margin-top:24px; padding-top:22px;
@@ -172,6 +197,9 @@
     font-style:italic;
   }
 </style>
+  <meta name="theme-color" content="#141d33">
+  <meta property="og:title" content="Murder Party n°7 — Un présage avant les noces">
+  <meta property="og:description" content="Un secret est dissimulé dans ce faire-part. Peu le trouveront.">
 </head>
 <body>
 <div class="stage">
@@ -198,26 +226,27 @@
    La phrase déchiffrée EST l'indice — volontairement énigmatique.
    ============================================================ */
 
-const INTRO = "Un mot a été glissé dans ce faire-part — pour ceux qui sauront le lire entre les lignes. Peu y parviendront. Ce n'est pas un mot que vous devrez percer à jour, mais une phrase tout entière, tapie sous ces lignes. Ceux qui la découvriront détiendront, seuls, un indice que nul autre convive n'aura en main le soir de la murder party.";
+const INTRO = "Un message est dissimulé dans ce faire-part. Le percer n'est pas nécessaire pour participer à la Murder Party : chacun y prendra part, indice ou non. Mais ceux qui le déchiffreront recevront, en plus, un indice que les autres convives n'auront pas.";
 
 const POEM_LINES = [
-  "L'or scintille aux doigts des invités qui s'avancent vers le grand escalier de marbre,",
-  "Il resplendit surtout sur les alliances que l'on échangera devant l'autel,",
-  "Grande est la salle où l'on dressera bientôt les tables du festin nuptial,",
-  "Nul, parmi les cousins éloignés venus des quatre coins du royaume, ne se doute de rien,",
-  "Et sous les habits brodés d'or, les sourires se figent dès que le silence retombe,",
+  "L'or scintille aux doigts des invités qui s'avancent vers le grand escalier de marbre.",
+  "Il resplendit surtout sur les alliances que l'on échangera devant l'autel.",
+  "Grande est la salle où l'on dressera bientôt les tables du festin nuptial.",
+  "Nul, parmi les cousins éloignés venus des quatre coins du royaume, ne se doute de rien.",
+  "Et sous les habits brodés d'or, les sourires se figent dès que le silence retombe.",
   "Et pourtant un nom, murmuré une seule fois dans l'ombre du couloir, ne s'oublie plus."
 ];
 
-const INSTRUCTION = "Un mot se cache dans ce texte — six lettres, pas une de plus. Servez-vous-en, dans l'ordre, pour ouvrir le message ci-dessous. Il ne suffira pas de le décaler une seule fois : la clé se répète, lettre après lettre, sur toute sa longueur.";
+const INSTRUCTION = "Un mot de six lettres se cache dans ce texte. Trouvez-le. Il ne suffira pas seul : ce faire-part porte un numéro, et ce numéro a lui aussi sa lettre. Quant au message ci-dessous, il n'a pas seulement changé de lettres — certains de ses caractères ont changé de nature.";
 
-const CIPHER_TEXT = "EWAG LICQZNKI NIIUI YY UKAWSYOK";
+const CIPHER_TEXT = "E(23)A(07) L(09)X(20)B(07)T(09) G(07)N(16)K (08)R (17)K(25)A(21)A(11)I";
 
 // Réponse acceptée = message déchiffré (espaces/accents/casse ignorés)
 const ACCEPTED = ["tout heritage cache un mensonge", "toutheritagecacheunmensonge"];
 
 const HINT_1 = "Toutes les lettres du texte ne se valent pas. Certaines, à une place bien précise, comptent plus que les autres.";
-const HINT_2 = "Le mot cherché a autant de lettres que le texte a de phrases. Une fois trouvé, il se répète en boucle, lettre après lettre, pour ouvrir chaque lettre du message chiffré à sa manière.";
+const HINT_2 = "Le mot cherché a autant de lettres que le texte a de phrases. Quant au numéro de cette soirée, transformez-le en lettre — la même lettre qu'on obtient en comptant l'alphabet jusqu'à ce chiffre — et ajoutez-la à la fin du mot. C'est cette clé complète, répétée en boucle, qui ouvre chaque lettre du message.";
+const HINT_3 = "Certains caractères de ce message ont changé de nature, mais pas de valeur. Cherchez ce qui, dans l'alphabet, leur donne un rang.";
 
 const CLUE_LABEL = "Présage";
 const CLUE_TEXT = "Tout héritage cache un mensonge.";
@@ -225,8 +254,7 @@ const CLUE_POSTSCRIPT = "Retenez cette phrase. Elle prendra tout son sens le soi
 
 // Compteur discret : incrémenté une seule fois par appareil, uniquement
 // quand la PHRASE complète (pas le mot-clé intermédiaire) est validée.
-const COUNTER_NAMESPACE = "ibtissam-mariage-royal-2026";
-const COUNTER_KEY = "enigme-faire-part";
+const COUNTER_KEY = "ibtissam-murder-party-7-enigme-faire-part-2026";
 const COUNTER_LOCK = "royalWeddingEnigmeSolved";
 
 /* ============================================================
@@ -254,43 +282,81 @@ function renderPuzzle(){
     <div class="tag">Énigme du faire-part</div>
     <div class="poem">${poemHtml}</div>
     <p class="instruction">${INSTRUCTION}</p>
-    <div class="cipher-strip">${CIPHER_TEXT}</div>
+    <div class="cipher-strip" id="cipherStrip" title="Toucher pour copier">${CIPHER_TEXT}</div>
+    <p class="copy-hint" id="copyHint">Touchez le message pour le copier.</p>
 
-    <button class="hint-toggle" onclick="toggleHint(1)">Premier indice de jeu</button>
+    <button class="hint-toggle" id="hintToggle1" onclick="toggleHint(1)">Premier indice de jeu</button>
     <div class="hint-box" id="hintBox1">${HINT_1}</div>
-    <button class="hint-toggle" onclick="toggleHint(2)">Second indice de jeu</button>
+    <button class="hint-toggle" id="hintToggle2" onclick="toggleHint(2)">Second indice de jeu</button>
     <div class="hint-box" id="hintBox2">${HINT_2}</div>
+    <button class="hint-toggle" id="hintToggle3" onclick="toggleHint(3)">Troisième indice de jeu</button>
+    <div class="hint-box" id="hintBox3">${HINT_3}</div>
 
     <div class="answer-row">
-      <input type="text" id="answerInput" placeholder="Message déchiffré..." autocomplete="off" onkeydown="if(event.key==='Enter')checkAnswer()">
-      <button class="verify-btn" onclick="checkAnswer()">Vérifier</button>
+      <input type="text" id="answerInput" placeholder="Message déchiffré..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" onkeydown="if(event.key==='Enter')checkAnswer()">
+      <button class="verify-btn" id="verifyBtn" onclick="checkAnswer()">Vérifier</button>
     </div>
-    <div class="feedback" id="feedback"></div>
+    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
 
-    <div class="indice-reveal" id="indiceReveal">
+    <div class="indice-reveal" id="indiceReveal" aria-live="polite">
       <div class="label">${CLUE_LABEL} révélé</div>
       <div class="indice-text">${CLUE_TEXT}</div>
       <div class="postscript">${CLUE_POSTSCRIPT}</div>
+      <button class="copy-btn" onclick="copyText('${CLUE_TEXT.replace(/'/g,"\\'")}', this)">Copier la phrase</button>
     </div>
   `;
+
+  document.getElementById('cipherStrip').addEventListener('click', () => {
+    copyText(CIPHER_TEXT, null, 'copyHint');
+  });
+}
+
+function copyText(text, btn, hintId){
+  const finish = (label) => {
+    if(btn){
+      const original = btn.textContent;
+      btn.textContent = label;
+      setTimeout(() => { btn.textContent = original; }, 1800);
+    }
+    if(hintId){
+      const hintEl = document.getElementById(hintId);
+      const original = hintEl.textContent;
+      hintEl.textContent = label;
+      setTimeout(() => { hintEl.textContent = original; }, 1800);
+    }
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(() => finish('Copié.')).catch(() => finish('Copie impossible sur cet appareil.'));
+  } else {
+    finish('Copie impossible sur cet appareil.');
+  }
 }
 
 function toggleHint(n){
-  document.getElementById('hintBox' + n).classList.toggle('show');
+  const box = document.getElementById('hintBox' + n);
+  const toggle = document.getElementById('hintToggle' + n);
+  const isShowing = box.classList.toggle('show');
+  const labels = { 1: "Premier indice de jeu", 2: "Second indice de jeu", 3: "Troisième indice de jeu" };
+  toggle.textContent = isShowing ? `Masquer l'indice n°${n}` : labels[n];
 }
 
 function checkAnswer(){
   const val = normalizeTight(document.getElementById('answerInput').value);
   const ok = ACCEPTED.some(a => normalizeTight(a) === val);
   const fb = document.getElementById('feedback');
+  const btn = document.getElementById('verifyBtn');
   if(ok){
     fb.textContent = "Le message est déchiffré.";
     fb.className = 'feedback ok';
-    document.getElementById('indiceReveal').classList.add('show');
+    const reveal = document.getElementById('indiceReveal');
+    reveal.classList.add('show');
     document.getElementById('answerInput').disabled = true;
-    document.querySelector('.verify-btn').disabled = true;
+    btn.disabled = true;
     registerSolve();
+    setTimeout(() => reveal.scrollIntoView({behavior:'smooth', block:'center'}), 250);
   } else {
+    fb.classList.remove('err');
+    void fb.offsetWidth; // relance l'animation si l'erreur se répète
     fb.textContent = "Ce n'est pas encore cela — réessayez.";
     fb.className = 'feedback err';
   }
@@ -300,10 +366,10 @@ function registerSolve(){
   try{
     if(localStorage.getItem(COUNTER_LOCK)) return; // déjà compté depuis cet appareil
     localStorage.setItem(COUNTER_LOCK, '1');
-    fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`).catch(()=>{});
+    fetch(`https://countapi.mileshilliard.com/api/v1/hit/${COUNTER_KEY}`).catch(()=>{});
   }catch(e){
     // localStorage indisponible (navigation privée, etc.) : on tente quand même l'appel une fois
-    fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`).catch(()=>{});
+    fetch(`https://countapi.mileshilliard.com/api/v1/hit/${COUNTER_KEY}`).catch(()=>{});
   }
 }
 
